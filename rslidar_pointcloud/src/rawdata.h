@@ -24,6 +24,7 @@
 #include <pcl_ros/impl/transforms.hpp>
 #include <pcl_conversions/pcl_conversions.h>
 #include <stdio.h>
+#include "point_types.h"
 namespace rslidar_rawdata
 {
 // static const float  ROTATION_SOLUTION_ = 0.18f;  //水平角分辨率 10hz
@@ -93,6 +94,19 @@ static const int BLOCKS_PER_PACKET = 12;
 static const int PACKET_STATUS_SIZE = 4;
 static const int SCANS_PER_PACKET = (SCANS_PER_BLOCK * BLOCKS_PER_PACKET);
 
+typedef std::map<int, int> RingMap;
+RingMap ring_map = {
+            {16, 0}, {17, 1}, {0, 2}, {18, 3},
+            {1, 4}, {19, 5}, {23, 6}, {22, 7},
+            {21, 8}, {20, 9}, {27, 10}, {26, 11},
+            {25, 12}, {24, 13}, {31, 14}, {30, 15},
+            {29, 16}, {28, 17}, {11, 18}, {10, 19},
+            {9, 20}, {8, 21}, {15, 22}, {14, 23},
+            {13, 24}, {12, 25}, {2, 26}, {3, 27},
+            {4, 28}, {5, 29}, {6, 30}, {7, 31}
+};
+
+
 /** \brief Raw Rsldar packet.
  *
  *  revolution is described in the device manual as incrementing
@@ -128,10 +142,10 @@ public:
   void loadConfigFile(ros::NodeHandle node, ros::NodeHandle private_nh);
 
   /*unpack the RS16 UDP packet and opuput PCL PointXYZI type*/
-  void unpack(const rslidar_msgs::rslidarPacket& pkt, pcl::PointCloud<pcl::PointXYZI>::Ptr pointcloud);
+  void unpack(const rslidar_msgs::rslidarPacket& pkt, pcl::PointCloud<rslidar_pointcloud::PointXYZIR>::Ptr pointcloud);
 
   /*unpack the RS32 UDP packet and opuput PCL PointXYZI type*/
-  void unpack_RS32(const rslidar_msgs::rslidarPacket& pkt, pcl::PointCloud<pcl::PointXYZI>::Ptr pointcloud);
+  void unpack_RS32(const rslidar_msgs::rslidarPacket& pkt, pcl::PointCloud<rslidar_pointcloud::PointXYZIR>::Ptr pointcloud);
 
   /*compute temperature*/
   float computeTemperature(unsigned char bit1, unsigned char bit2);
@@ -174,6 +188,8 @@ private:
   bool info_print_flag_;
   bool isBpearlLidar_;
   bool angle_flag_;
+
+//  RingMap ring_map;
 
   /* cos/sin lookup table */
   std::vector<double> cos_lookup_table_;
